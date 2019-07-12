@@ -15,18 +15,13 @@ class ICometServiceProvider extends ServiceProvider
         Console\PushCommand::class,
     ];
 
-    public function bootConfig()
-    {
-        $path = __DIR__ . '/../config/config.php';
+    public function boot() {
+        $path = __DIR__ . '/../config/icomet.php';
 
         $this->mergeConfigFrom($path, 'icomet');
-    }
-
-    public function boot() {
-        $this->bootConfig();
 
         if ($this->app->runningInConsole()) {
-            $this->publishes([__DIR__ . '/../config/config.php' => config_path('icomet.php')]);
+            $this->publishes([__DIR__ . '/../config/icomet.php' => config_path('icomet.php')]);
         }
     }
 

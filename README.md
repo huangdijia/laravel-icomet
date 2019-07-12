@@ -14,6 +14,8 @@ copy config file to config path
 cp vendor/huangdijia/laravel-icomet/config/config.php config
 ~~~
 
+register to `bootstrap/app.php`
+
 ~~~php
 $app->register(Huangdijia\IComet\ICometServiceProvider::class);
 //...
