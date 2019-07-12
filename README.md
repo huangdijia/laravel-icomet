@@ -8,10 +8,10 @@ composer require huangdijia/laravel-icomet
 
 > Lumen
 
-copy config file to config path
+copy `icomet.php` file to config path
 
 ~~~bash
-cp vendor/huangdijia/laravel-icomet/config/config.php config
+cp vendor/huangdijia/laravel-icomet/config/icomet.php config
 ~~~
 
 register to `bootstrap/app.php`
