@@ -6,6 +6,14 @@
 composer require huangdijia/laravel-icomet
 ~~~
 
+> Larvel
+
+publish config
+
+~~~bash
+php artisan vendor:publish --provider="Huangdijia\IComet\ICometServiceProvider"
+~~~
+
 > Lumen
 
 copy `icomet.php` file to config path
