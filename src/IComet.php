@@ -2,13 +2,23 @@
 
 namespace Huangdijia\IComet;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request;
+use Closure;
+
 class IComet
 {
     private $config = [];
+    private $client;
 
     public function __construct(array $config = [])
     {
-        $this->config        = $config;
+        $this->config = $config;
+        $this->client = new Client([
+            'base_uri' => rtrim($this->config['api'], '/'),
+            'timeout'  => 2.0,
+        ]);
     }
 
     /**
@@ -24,12 +34,23 @@ class IComet
 
     /**
      * Push
-     * @param string $cname
+     * @param string|array $cname
      * @param string|array $content
      * @return bool
      */
-    public function push(string $cname = '', $content = '')
+    public function push($cname = '', $content = '')
     {
+        // Batch
+        if (is_array($cname)) {
+            return $this->batchPush($cname);
+        }
+
+        // Single
+        if (!is_scalar($cname)) {
+            throw new \Exception("\$cname must be string, " . gettype($cname) . " given", 1);
+        }
+
+        // transform content
         if (is_array($content)) {
             $content = json_encode($content, JSON_UNESCAPED_UNICODE);
         }
@@ -40,19 +61,77 @@ class IComet
     }
 
     /**
-     * Broadcast
-     * @param string|array $content
+     * Batch push
+     *
+     * @param array $context ['cname' => 'content']
      * @return bool
      */
-    public function broadcast($content = '')
+    public function batchPush(array $context = [])
+    {
+        $uri      = '/push';
+        $requests = function ($uri, $context) {
+            foreach ($context as $cname => $content) {
+                yield new Request('GET', $uri . '?' . http_build_query(['cname' => $cname, 'content' => $content]));
+            }
+        };
+
+        $pool = new Pool($this->client, $requests($uri, $context), [
+            'concurrency' => 30,
+            'fulfilled'   => function ($response, $index) {
+                // this is delivered each successful response
+            },
+            'rejected'    => function ($reason, $index) {
+                // this is delivered each failed request
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        return true;
+    }
+
+    /**
+     * Broadcast
+     * @param string|array $content
+     * @param array|null $cnames
+     * @return bool
+     */
+    public function broadcast($content = '', array $cnames = null)
     {
         if (is_array($content)) {
             $content = json_encode($content, JSON_UNESCAPED_UNICODE);
         }
 
-        $response = $this->get('/broadcast', compact('content'), false);
+        // broadcast to all channels
+        if (is_null($cnames)) {
+            $response = $this->get('/broadcast', compact('content'), false);
 
-        return trim($response) == 'ok';
+            return trim($response) == 'ok';
+        }
+
+        // push to assign channels
+        $uri      = '/push';
+        $requests = function ($uri, $cnames, $content) {
+            foreach ($cnames as $cname) {
+                yield new Request('GET', $uri . '?' . http_build_query(['cname' => $cname, 'content' => $content]));
+            }
+        };
+
+        $pool = new Pool($this->client, $requests($uri, $cnames, $content), [
+            'concurrency' => 30,
+            'fulfilled'   => function ($response, $index) {
+                // this is delivered each successful response
+            },
+            'rejected'    => function ($reason, $index) {
+                // this is delivered each failed request
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        return true;
     }
 
     /**
@@ -118,31 +197,20 @@ class IComet
     /**
      * curl Get
      * @param string $path
-     * @param array $queries
+     * @param array $query
      * @param bool $decode
      * @return string|array
      */
-    private function get(string $path = '', array $queries = [], bool $decode = true)
+    private function get(string $path = '', array $query = [], bool $decode = true)
     {
-        $url   = rtrim($this->config['api'], '/') . '/' . ltrim($path, '/');
-        $query = http_build_query($queries);
-        if ($query) {
-            $url .= (strpos($url, '?') === false ? '?' : '&') . $query;
-        }
-
-        $ch = curl_init($url);
-
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-        $response = curl_exec($ch);
-
-        curl_close($ch);
+        $path     = '/' . ltrim($path, '/');
+        $response = $this->client->get($path, ['query' => $query]);
+        $body     = $response->getBody()->getContents();
 
         if (!$decode) {
-            return $response;
+            return $body;
         }
 
-        return json_decode($response, true);
+        return json_decode($body, true);
     }
 }
