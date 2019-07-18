@@ -2,8 +2,8 @@
 
 namespace Huangdijia\IComet\Console;
 
-use Illuminate\Console\Command;
 use Huangdijia\IComet\Facades\IComet;
+use Illuminate\Console\Command;
 
 class PushCommand extends Command
 {
@@ -20,11 +20,17 @@ class PushCommand extends Command
             return;
         }
 
-        $resp  = IComet::push($cname, $content);
+        if (false !== strpos($cname, ',')) {
+            $cnames = array_filter(explode(',', $cname));
 
-        if (!$resp) {
-            $this->warn('push failure!');
-            return;
+            IComet::broadcast($content, $cnames);
+        } else {
+            $resp = IComet::push($cname, $content);
+
+            if (!$resp) {
+                $this->warn('push failure!');
+                return;
+            }
         }
 
         $this->info('push success!');
