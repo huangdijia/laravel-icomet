@@ -5,7 +5,6 @@ namespace Huangdijia\IComet;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
-use Closure;
 
 class IComet
 {
@@ -71,6 +70,10 @@ class IComet
         $uri      = '/push';
         $requests = function ($uri, $context) {
             foreach ($context as $cname => $content) {
+                if (is_array($content)) {
+                    $content = json_encode($content, JSON_UNESCAPED_UNICODE);
+                }
+
                 yield new Request('GET', $uri . '?' . http_build_query(['cname' => $cname, 'content' => $content]));
             }
         };
