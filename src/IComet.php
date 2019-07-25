@@ -16,7 +16,7 @@ class IComet
         $this->config = $config;
         $this->client = new Client([
             'base_uri' => rtrim($this->config['api'], '/'),
-            'timeout'  => 2.0,
+            'timeout'  => $this->config['timeout'] ?? 2,
         ]);
     }
 
