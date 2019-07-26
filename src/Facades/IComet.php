@@ -5,7 +5,7 @@ namespace Huangdijia\IComet\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \App\Services\Icomet
+ * @see Huangdijia\IComet\Icomet
  * @method array sign(string $cname = '', string $cb = '')
  * @method bool push($cname = '', $content = '')
  * @method bool batchPush(array $context =  [])
