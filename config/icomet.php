@@ -2,5 +2,5 @@
 return [
     'pub'     => env('ICOMET_PUB', ''),
     'api'     => env('ICOMET_API', ''),
-    'timeout' => 2,
+    'timeout' => env('ICOMET_TIMEOUT', ''),
 ];
