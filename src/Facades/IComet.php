@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method bool close(string $cname = '')
  * @method bool clear(string $cname = '')
  * @method array info(string $cname = '')
- * @method mixed psub()
+ * @method void psub(Closure $callback)
  */
 class IComet extends Facade
 {
