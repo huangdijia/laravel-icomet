@@ -2,6 +2,7 @@
 
 namespace Huangdijia\IComet;
 
+use Closure;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
@@ -189,12 +190,36 @@ class IComet
 
     /**
      * Psub
+     * @param \Closure $callback
      *
-     * @return mixed
+     * @return void
      */
-    public function psub()
+
+    public function psub(Closure $callback)
     {
-        return $this->get('/psub');
+        $url    = rtrim($this->config['api'], '/') . '/psub';
+        $handle = fopen($url, 'rb');
+
+        if (false === $handle) {
+            throw new \Exception('cannot open ' . $url);
+        }
+
+        while (!feof($handle)) {
+            $line = fread($handle, 8192);
+            $line = trim($line);
+
+            if (empty($line)) {
+                continue;
+            }
+
+            [$status, $channel] = explode(' ', $line);
+            $status             = (int) $status;
+            $channel            = (int) $channel;
+
+            $callback($channel, $status);
+        }
+
+        fclose($handle);
     }
 
     /**
