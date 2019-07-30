@@ -12,6 +12,7 @@ class ICometServiceProvider extends ServiceProvider
         Console\CheckCommand::class,
         Console\CloseCommand::class,
         Console\InfoCommand::class,
+        Console\PsubCommand::class,
         Console\PushCommand::class,
     ];
 
