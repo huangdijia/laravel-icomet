@@ -212,9 +212,9 @@ class IComet
                 continue;
             }
 
-            [$status, $channel] = explode(' ', $line);
-            $status             = (int) $status;
-            $channel            = (int) $channel;
+            $data    = explode(' ', $line, 2);
+            $status  = (int) $data[0] ?? 0;
+            $channel = (int) $data[1] ?? 0;
 
             $callback($channel, $status);
         }
