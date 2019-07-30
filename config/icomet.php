@@ -1,6 +1,6 @@
 <?php
 return [
-    'pub'     => env('ICOMET_PUB', ''),
+    'sub'     => env('ICOMET_SUB', ''),
     'api'     => env('ICOMET_API', ''),
     'timeout' => env('ICOMET_TIMEOUT', ''),
 ];
