@@ -22,7 +22,7 @@ class ICometServiceProvider extends ServiceProvider
         $this->mergeConfigFrom($path, 'icomet');
 
         if ($this->app->runningInConsole()) {
-            $this->publishes([__DIR__ . '/../config/icomet.php' => config_path('icomet.php')]);
+            $this->publishes([__DIR__ . '/../config/icomet.php' => $this->app->basePath('configs/icomet.php')]);
         }
     }
 
