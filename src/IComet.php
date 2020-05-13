@@ -47,7 +47,7 @@ class IComet
 
         // Single
         if (!is_scalar($cname)) {
-            throw new \Exception("\$cname must be string, " . gettype($cname) . " given", 1);
+            throw new \InvalidArgumentException("\$cname must be string, " . gettype($cname) . " given", 1);
         }
 
         // transform content
@@ -201,7 +201,7 @@ class IComet
         $handle = fopen($url, 'rb');
 
         if (false === $handle) {
-            throw new \Exception('cannot open ' . $url);
+            throw new \RuntimeException('cannot open ' . $url);
         }
 
         while (!feof($handle)) {

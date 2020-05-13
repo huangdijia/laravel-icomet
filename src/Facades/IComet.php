@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @see Huangdijia\IComet\Icomet
- * @method array sign(string $cname = '', string $cb = '')
+ * @method array sign(string $cname = '', int $expires = 60)
  * @method bool push($cname = '', $content = '')
  * @method bool batchPush(array $context =  [])
  * @method bool broadcast($content = '', array $cnames = null)
